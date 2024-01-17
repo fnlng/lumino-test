@@ -26,3 +26,6 @@ export default class CounterWidget extends Widget {
   }
 
 }
+
+
+export const CounterWidgetSingleton = new CounterWidget()

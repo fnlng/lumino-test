@@ -1,18 +1,8 @@
 import { UseSignal } from "@jupyterlab/ui-components"
-import { useEffect, useState } from "react"
-import CounterWidget from "./widgets/CounterWidget"
+import { CounterWidgetSingleton } from "./widgets/CounterWidget"
+
 
 function App() {
-
-  const [counterWidget, setCounterWidget] = useState<CounterWidget>()
-
-  useEffect(() => {
-    console.log('render effect')
-    const cw = new CounterWidget()
-    setCounterWidget(cw)
-
-    return () => cw.dispose()
-  }, [])
 
   const MyComponent = (
     { count, setCount }: 
@@ -38,17 +28,17 @@ function App() {
 
   return (
     <div>
-      { counterWidget && 
-      <UseSignal signal={counterWidget.valueChanged} initialArgs={counterWidget.value}>
+      { CounterWidgetSingleton && 
+      <UseSignal signal={CounterWidgetSingleton.valueChanged} initialArgs={CounterWidgetSingleton.value}>
         { 
           (_sender, count) => 
             count !== undefined && 
             <MyComponent 
               count={count} 
               setCount={
-                (newValue) => { 
-                  counterWidget.value = newValue
-                  counterWidget.valueChanged.emit(newValue)
+                (newValue) => {
+                  CounterWidgetSingleton.value = newValue
+                  CounterWidgetSingleton.valueChanged.emit(newValue)
                 }
               } 
             /> 
