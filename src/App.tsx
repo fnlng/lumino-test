@@ -1,19 +1,17 @@
 import { UseSignal } from "@jupyterlab/ui-components"
-import { Signal } from "@lumino/signaling"
-import { useEffect, useRef, useState } from "react"
-import './App.css'
-
+import { useEffect, useState } from "react"
+import CounterWidget from "./widgets/CounterWidget"
 
 function App() {
 
-  const self = useRef(null);
-
-  const [countUpdateSignal, setCountUpdateSignal] = useState<Signal<React.Component, number>>()
-
-  const [value, setValue] = useState(0)
+  const [counterWidget, setCounterWidget] = useState<CounterWidget>()
 
   useEffect(() => {
-    setCountUpdateSignal(new Signal<React.Component, number>(self.current!))
+    console.log('render effect')
+    const cw = new CounterWidget()
+    setCounterWidget(cw)
+
+    return () => cw.dispose()
   }, [])
 
   const MyComponent = (
@@ -39,20 +37,21 @@ function App() {
   }
 
   return (
-    <div ref={self}>
-      { countUpdateSignal && 
-      <UseSignal signal={countUpdateSignal} initialArgs={value}>
+    <div>
+      { counterWidget && 
+      <UseSignal signal={counterWidget.valueChanged} initialArgs={counterWidget.value}>
         { 
           (_sender, count) => 
-            count !== undefined && <MyComponent 
-                        count={count} 
-                        setCount={
-                          (newValue) => { 
-                            setValue(() => newValue)
-                            countUpdateSignal.emit(newValue)
-                          }
-                        } 
-                      /> 
+            count !== undefined && 
+            <MyComponent 
+              count={count} 
+              setCount={
+                (newValue) => { 
+                  counterWidget.value = newValue
+                  counterWidget.valueChanged.emit(newValue)
+                }
+              } 
+            /> 
         }
       </UseSignal>
       }
